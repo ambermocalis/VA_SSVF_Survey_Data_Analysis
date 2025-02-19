@@ -1,5 +1,5 @@
 // Load the CSV file into a DuckDB table
-source: nofa is duckdb.table('data/converted/2022_Supp_NOFA_Awards.csv') extend {
+source: nofa is duckdb.table('./2022_Supp_NOFA_Awards.csv') extend {
     primary_key: grant_id
 
     rename: state is `Geographical Area Served`
@@ -28,7 +28,7 @@ source: nofa is duckdb.table('data/converted/2022_Supp_NOFA_Awards.csv') extend 
             else null
 }
 
-source: grants is duckdb.table('data/converted/FY22_SSVF_Grant_Awards.csv') extend {
+source: grants is duckdb.table('./FY22_SSVF_Grant_Awards.csv') extend {
     primary_key: grant_id
 
     rename: grant_id is `Grant Award No.`
@@ -65,7 +65,7 @@ source: grants is duckdb.table('data/converted/FY22_SSVF_Grant_Awards.csv') exte
     
 }
 
-source: survey is duckdb.table('data/converted/FINAL Data - FY 2018-2020_Excluding PII.csv') extend {
+source: survey is duckdb.table('./FINAL Data - FY 2018-2020_Excluding PII.csv') extend {
     except: FNAME, PHONE, PIN, REMAIL ResponseID, Q9, Q10, Q11 //removes unneeded, empty or open-text columns from source
 
     primary_key: grant_id
@@ -102,7 +102,7 @@ source: survey is duckdb.table('data/converted/FINAL Data - FY 2018-2020_Excludi
 
 }
 
-source: grants2 is duckdb.table('data/converted/FY22_SSVF_Grant_Awards.csv') extend {
+source: grants2 is duckdb.table('./FY22_SSVF_Grant_Awards.csv') extend {
     primary_key: grant_id
 
     rename: grant_id is `Grant Award No.`

@@ -3,7 +3,7 @@
 ### Analysis of SSVF Survey Data and overall satisfaction of "customers" of provider/grantor services
 The VA SSVF program awards grants to “selected private non-profit organizations and consumer cooperatives that will assist very low-income Veteran families residing in or transitioning to permanent housing.” Federal regulations (38 CFR 62.36(c)(2)) require grantees to provide a satisfaction survey to participants in the program within 30 days of the participants exit from the program.
 
-##### This file can be found on <mark>[github.com/ambermocalis](https://github.com/ambermocalis/VA_SSVF_Survey_Data_Analysis)</mark>
+##### This file can be found on <mark>[github.com/ambermocalis/VA_SSVF_Survey_Data_Analysis](https://github.com/ambermocalis/VA_SSVF_Survey_Data_Analysis)</mark>
 
 This analysis includes an analysis of rate of service access for other Veteran assistance programs, (e.g. healthcare, financial services care, etc.)
 
@@ -232,7 +232,7 @@ run: survey -> {
 }
 >>>malloy
 // sourcing this data from the grants table with maps to improve query performance by separating the URL call from the rest of the data.
-source: grants_map is duckdb.table('data/raw/FY22_SSVF_Grant_Awards.csv') extend {
+source: grants_map is duckdb.table('./FY22_SSVF_Grant_Awards.csv') extend {
     dimension:
         # image {width=700px, height=387px}
         VISN_map_all is 'https://www.va.gov/directory/images/VHA/VHAmap.gif'
