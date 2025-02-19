@@ -1,29 +1,11 @@
 # VA SSVF Survey Data Analysis
 
-This repository contains data obtained by the [Data Liberation Project](https://www.data-liberation-project.org/), via a [Freedom of Information Act request](https://www.data-liberation-project.org/requests/ssvf-satisfaction-surveys/) to the US Department of Veterans Affairs (VA) and pre-processed by the Data Liberation Project. They're initial documentation can be viewed [HERE](https://docs.google.com/document/d/1unanFEUnBDVBMK9pmpb0EVvRlpB-jtRC6gwlXSN-If4/edit?tab=t.0).
+This repository contains data obtained by the [Data Liberation Project](https://www.data-liberation-project.org/), via a [Freedom of Information Act request](https://www.data-liberation-project.org/requests/ssvf-satisfaction-surveys/) to the US Department of Veterans Affairs (VA) and pre-processed by the Data Liberation Project. 
 
 ## FOIA Records
 
-The records provided by the VA by the Data Liberation Project were reorganized but not edited and are as follows:
+The records provided by the VA by the Data Liberation Project can be viewed [HERE](https://docs.google.com/document/d/1unanFEUnBDVBMK9pmpb0EVvRlpB-jtRC6gwlXSN-If4/edit?tab=t.0).
 
-```
-data/
-├── documentation
-│   └── 1772 VA SSVF Data Dictionary.xlsx
-└── raw
-    ├── FINAL Data - FY 2016-2017_Excluding PII.xlsx
-    ├── FINAL Data - FY 2018-2020_Excluding PII.xlsx
-    └── SSVF Annual National Report Data Oct 21 - Sep 22_Excluding PII.xlsx
-
-pdfs/
-├── SSVF FY21-22 National Report_Excluding PII.pdf
-├── SSVF_Annual_Report_FY19.pdf
-├── Statistical Summary 1.1.2015 - 2.10.2016.pdf
-├── VA SSVF Year End Report FY16.pdf
-├── VA SSVF Year End Report FY17.pdf
-├── VA SSVF Year End Report FY18.pdf
-└── VA SSVF Year End Report FY20.pdf
-```
 
 ## Code
 
