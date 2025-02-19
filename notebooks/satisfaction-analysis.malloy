@@ -1,0 +1,142 @@
+// Load the CSV file into a DuckDB table
+source: nofa is duckdb.table('data/converted/2022_Supp_NOFA_Awards.csv') extend {
+    primary_key: grant_id
+
+    rename: state is `Geographical Area Served`
+
+    dimension: 
+        grant_id is replace(`Grant ID`,'-LT','')
+        VISN_cleaned is 
+            pick 'VISN 1: VA New England Healthcare System' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 1'
+            pick 'VISN 2: New York/New Jersey VA Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 2'
+            pick 'VISN 4: VA Healthcare' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 4'
+            pick 'VISN 5: VA Capitol Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 5'
+            pick 'VISN 6: VA Mid-Atlantic Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 6'
+            pick 'VISN 7: VA Southeast Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 7'
+            pick 'VISN 8: VA Sunshine Healthcare Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 8'
+            pick 'VISN 9: VA MidSouth Healthcare Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 9'
+            pick 'VISN 10: VA Healthcare System' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 10'
+            pick 'VISN 12: VA Great Lakes Health Care System' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 12'
+            pick 'VISN 15: VA Heartland Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 15'
+            pick 'VISN 16: South Central VA Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 16'
+            pick 'VISN 17: VA Heart of Texas Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 17'
+            pick 'VISN 19: Rocky Mountain Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 19'
+            pick 'VISN 20: Northwest Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 20'
+            pick 'VISN 21: Sierra Pacific Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 21'
+            pick 'VISN 22: Desert Pacific Healthcare Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 22'
+            pick 'VISN 23: VA Midwest Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 23'
+            else null
+}
+
+source: grants is duckdb.table('data/converted/FY22_SSVF_Grant_Awards.csv') extend {
+    primary_key: grant_id
+
+    rename: grant_id is `Grant Award No.`
+
+    dimension:
+        --# image {width=700px, height=387px}
+        --VISN_map_all is 'https://www.va.gov/directory/images/VHA/VHAmap.gif'
+        --# image {width=350px, height=200px}
+        --VISN_map is concat('https://www.va.gov/directory/images/vha/region/', trim(substr(substr(`VISN`, 0, strpos(VISN, ':')), -2)), '.gif')
+        VISN_num is trim(substr(substr(`VISN`, 0, strpos(VISN, ':')), -2))::number
+        VISN_cleaned is 
+            pick 'VISN 1: VA New England Healthcare System' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 1'
+            pick 'VISN 2: New York/New Jersey VA Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 2'
+            pick 'VISN 4: VA Healthcare' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 4'
+            pick 'VISN 5: VA Capitol Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 5'
+            pick 'VISN 6: VA Mid-Atlantic Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 6'
+            pick 'VISN 7: VA Southeast Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 7'
+            pick 'VISN 8: VA Sunshine Healthcare Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 8'
+            pick 'VISN 9: VA MidSouth Healthcare Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 9'
+            pick 'VISN 10: VA Healthcare System' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 10'
+            pick 'VISN 12: VA Great Lakes Health Care System' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 12'
+            pick 'VISN 15: VA Heartland Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 15'
+            pick 'VISN 16: South Central VA Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 16'
+            pick 'VISN 17: VA Heart of Texas Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 17'
+            pick 'VISN 19: Rocky Mountain Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 19'
+            pick 'VISN 20: Northwest Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 20'
+            pick 'VISN 21: Sierra Pacific Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 21'
+            pick 'VISN 22: Desert Pacific Healthcare Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 22'
+            pick 'VISN 23: VA Midwest Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 23'
+            else null
+                
+    measure: 
+        award_amount is sum(`Grant Award Amount`)
+    
+}
+
+source: survey is duckdb.table('data/converted/FINAL Data - FY 2018-2020_Excluding PII.csv') extend {
+    except: FNAME, PHONE, PIN, REMAIL ResponseID, Q9, Q10, Q11 //removes unneeded, empty or open-text columns from source
+
+    primary_key: grant_id
+
+    rename: 
+        provider_name is LEGAL_NAME
+        grant_id is GRANT_ID
+        EOM_date is DateRange
+        supported_peoples is QA //Survey Q: Number of individuals (including yourself) in household receiving support services from this provider: 1, 2, 3, 4+
+        VA_enrolled is QB //Survey Q: Are you currently enrolled in VA healthcare? 1=Yes, 2=No
+        VA_new_enrollment is QC //Survey Q: Were you enrolled in the VA health care system prior to receiving services from this provider? 1=Yes, 2=No
+
+    dimension: 
+        survey_date is strptime!date(`Timestamp`::string, '%Y%m%d')
+        fiscal_year is pick EOM_date.year when month(EOM_date) < 10 else EOM_date.year + 1
+    
+    measure:
+        num_responses is count()
+        first_date is min(survey_date)
+        last_date is max(survey_date)
+        percent_total is num_responses / all(num_responses)
+        average is avg(Q1)
+    
+    view: org_data1 is {
+        select: grant_id, fiscal_year, survey_date, provider_name
+    }
+    view: survey_data1 is {
+        group_by: fiscal_year
+        aggregate: num_responses
+    }
+    
+    join_one: nofa with grant_id
+    join_one: grants with grant_id
+
+}
+
+source: grants2 is duckdb.table('data/converted/FY22_SSVF_Grant_Awards.csv') extend {
+    primary_key: grant_id
+
+    rename: grant_id is `Grant Award No.`
+
+    dimension:
+        --substr(`VISN`, 0, strpos(VISN, ':')) is substr(`VISN`, 0, strpos(VISN, ':'))
+        VISN_cleaned is 
+            pick 'VISN 1: VA New England Healthcare System' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 1'
+            pick 'VISN 2: New York/New Jersey VA Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 2'
+            pick 'VISN 4: VA Healthcare' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 4'
+            pick 'VISN 5: VA Capitol Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 5'
+            pick 'VISN 6: VA Mid-Atlantic Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 6'
+            pick 'VISN 7: VA Southeast Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 7'
+            pick 'VISN 8: VA Sunshine Healthcare Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 8'
+            pick 'VISN 9: VA MidSouth Healthcare Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 9'
+            pick 'VISN 10: VA Healthcare System' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 10'
+            pick 'VISN 12: VA Great Lakes Health Care System' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 12'
+            pick 'VISN 15: VA Heartland Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 15'
+            pick 'VISN 16: South Central VA Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 16'
+            pick 'VISN 17: VA Heart of Texas Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 17'
+            pick 'VISN 19: Rocky Mountain Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 19'
+            pick 'VISN 20: Northwest Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 20'
+            pick 'VISN 21: Sierra Pacific Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 21'
+            pick 'VISN 22: Desert Pacific Healthcare Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 22'
+            pick 'VISN 23: VA Midwest Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 23'
+            else null
+    
+    measure: 
+        award_amount is sum(`Grant Award Amount`)
+        num_responses is survey.count()
+    
+    join_many: survey on survey.grant_id = grant_id
+
+}
+run: grants2 -> {
+    aggregate: num_responses
+}

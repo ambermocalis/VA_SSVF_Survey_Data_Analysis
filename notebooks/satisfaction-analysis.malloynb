@@ -1,0 +1,513 @@
+>>>markdown
+# US Department of Veteran Affairs (VA) Supportive Services for Veteran Families (SSVF) Survey Data
+### Analysis of SSVF Survey Data and overall satisfaction of "customers" of provider/grantor services
+The VA SSVF program awards grants to “selected private non-profit organizations and consumer cooperatives that will assist very low-income Veteran families residing in or transitioning to permanent housing.” Federal regulations (38 CFR 62.36(c)(2)) require grantees to provide a satisfaction survey to participants in the program within 30 days of the participants exit from the program.
+
+This analysis includes an analysis of rate of service access for other Veteran assistance programs, (e.g. healthcare, financial services care, etc.)
+
+Geographic Area analysis required the joining of [SSVF Grantor Supplement](https://www.va.gov/HOMELESS/ssvf/docs/FY22_SSVF_Supplemental_NOFA_Awards_Announcement.pdf) and areas adjusted to match the [Veterans Integrated Services Networks (VISNs)](https://www.va.gov/HEALTH/visns.asp)
+>>>malloy
+import 'satisfaction-analysis.malloy'
+>>>malloy
+run: survey -> {
+    select: *
+    --limit: 5
+}
+>>>malloy
+run: grants -> {
+    select: *
+    limit: 5
+}
+>>>malloy
+run: nofa -> {
+    select: *
+    limit: 5
+}
+>>>markdown
+**Schema Overview**
+
+"survey"
+- We have 61 relevant data columns, most being comprised of our survey answers, as well as date and organization information.
+
+"grants"
+- There are 6 primary data columns. Of note from this table will be the Grant Award Amounts and Veteran Integrated Services Network ID (VISN) to help us understand where award dollars are being spent in fiscal year 2022 (FY22)
+
+"nofa"
+- The Notice of Funding Availability (NOFA) supplement allows us to match an organization's Grant ID with their region of coverage (VISN & state).
+
+_________
+>>>markdown
+- **How many survey responses are we analyzing?**
+>>>malloy
+run: survey -> {
+    aggregate: num_responses
+}
+>>>markdown
+we see here that we have 26,347 SSVF survey responses to analyze
+>>>markdown
+- **What time frame of survey data is included?**
+>>>malloy
+run: survey -> {
+    aggregate: 
+        first_date 
+        last_date 
+        time_span is ceil(days(first_date to last_date)/365.25)
+        
+}    
+>>>malloy
+run: survey -> {
+    aggregate: 
+        total is count(fiscal_year)
+}
+>>>markdown
+This data covers 3 years of service, from FY18 to FY20. For reference, most government entities observe a fiscal year start date of 10/1.
+>>>markdown
+- **How many service providers have received grants from the VA for SSVF overall?**
+>>>malloy
+run: survey -> {
+    aggregate: 
+        SSVF_providers is count(grant_id) // shows number of distinct Grant IDs of SSVF providers
+}
+>>>markdown
+So there are 405 SSVF providers that have submitted survey response data to the Department of Veteran's Affairs (VA).
+>>>markdown
+- **How many SSVF Providers gathered survey responses each fiscal year and how many survey responses were gathered in total?**
+>>>malloy
+run: survey -> {
+    group_by: fiscal_year
+    aggregate: 
+        SSVF_providers is count(grant_id) //shows count of SSVF providers
+        num_responses //shows number of survey responses
+    order_by: fiscal_year
+}
+>>>markdown
+So we can see we have anywhere from 259 to 311 SSVF organizations providing survey data each year, with approx 7,400 to 10,000 responses annually. But how do those survey responses break out when you begin to look at individual organizations?
+>>>markdown
+- **How many recipients completed the exit survey by fiscal year?**
+
+Most government entities observe the end of their fiscal year on 9/30/XX, so as part of the data cleaning a new dimension was created to explicitly identify the Fiscal Year the survey was conducted in.
+>>>markdown
+This first query allows us to analyze how many SSVF providers conducted exit surveys each fiscal year. I have also nested the top 10 providers with the highest number of survey responses and a frequency chart/bar chart to aid in visualizing the number of survey responses each year.
+>>>malloy
+run: survey -> {
+    group_by: fiscal_year
+    aggregate: 
+        SSVF_providers is count(grant_id) //shows count of SSVF providers
+    nest: sample_providers is {
+        group_by: provider_name
+        aggregate: num_responses
+        limit: 10
+    }
+
+    # bar_chart {x.independent, y.independent }
+    nest: sample_providers_chart is {
+        group_by: provider_name
+        aggregate: num_responses
+        order_by: num_responses desc
+        limit: 10
+    }
+    order_by: fiscal_year
+}
+>>>markdown
+To aid in analyzing each year's data, we can break these charts out by fiscal year and look at them in isolation.
+>>>malloy
+// FY18 survey counts
+run: survey -> {
+    group_by: fiscal_year
+    aggregate: 
+        SSVF_providers is count(grant_id) //shows count of SSVF providers
+    nest: sample_providers is {
+        group_by: provider_name
+        aggregate: num_responses
+        limit: 10
+    }
+    nest: sample_providers_lowest is {
+        group_by: provider_name
+        aggregate: num_responses
+        order_by: num_responses asc
+        limit: 10
+    }    
+    # bar_chart 
+    nest: sample_providers_chart is {
+        group_by: provider_name
+        aggregate: num_responses
+        limit: 10
+    }
+    where: fiscal_year = @2018
+}
+>>>malloy
+// FY19 survey counts
+run: survey -> {
+    group_by: fiscal_year
+    aggregate: 
+        SSVF_providers is count(grant_id) //shows count of SSVF providers
+    nest: sample_providers is {
+        group_by: provider_name
+        aggregate: num_responses
+        limit: 10
+    }
+    nest: sample_providers_lowest is {
+        group_by: provider_name
+        aggregate: num_responses
+        order_by: num_responses asc
+        limit: 10
+    }    
+    # bar_chart
+    nest: sample_providers_chart is {
+        group_by: provider_name
+        aggregate: num_responses
+        limit: 10
+    }
+    where: fiscal_year = @2019
+}
+>>>malloy
+// FY20 survey counts
+run: survey -> {
+    group_by: fiscal_year
+    aggregate: 
+        SSVF_providers is count(grant_id) //shows count of SSVF providers
+    nest: sample_providers is {
+        group_by: provider_name
+        aggregate: num_responses
+        limit: 10
+    }
+    nest: sample_providers_lowest is {
+        group_by: provider_name
+        aggregate: num_responses
+        order_by: num_responses asc
+        limit: 10
+    }    
+    # bar_chart
+    nest: sample_providers_chart is {
+        group_by: provider_name
+        aggregate: num_responses
+        limit: 10
+    }
+    where: fiscal_year = @2020
+}
+>>>markdown
+So we see that some organizations experience higher volumes of veterans exiting the program (300 to 500 or more based on the number of survey responses). Other organizations may only have 1-5 grantees exiting their program in a fiscal year. There's not a good sense of where these organizations and their grantees are located, so we can drill down into the data further by using some of our joined data sets - 'nofa' and 'grants'.
+>>>markdown
+- **What is the concentration of survey responses by state?** 
+>>>malloy
+run: survey -> {
+    group_by: fiscal_year
+    aggregate: `Survey Responses` is num_responses
+    where: nofa.state != null 
+    # shape_map
+    nest: by_state_shaped is {
+        group_by: nofa.state
+        aggregate: num_responses
+        where: nofa.state != null 
+    }
+}
+>>>markdown
+So it looks like we only have state information for survey data for 2019 and 2020 due to limitations in matching SSVF Grant IDs from pre-2020. This means our map may be incomplete, if we cannot match some providers with their state.
+>>>malloy
+run: survey -> {
+    group_by: fiscal_year
+    aggregate: 
+        `Survey Responses w/o State Designation` is num_responses {where: nofa.state = null}
+        `Survey Responses w State Designation` is num_responses {where: nofa.state != null}
+}
+>>>malloy
+# line_chart {size=lg}
+run: survey -> {
+    group_by: fiscal_year
+    aggregate: 
+        # y
+        `Survey Responses-no state` is num_responses {where: nofa.state = null}
+        # y
+        `Survey Responses` is num_responses {where: nofa.state != null}
+}
+>>>markdown
+Sure enough, we have a number of surveys provided to SSVF providers that we do not have state information on due to data limitations. We can look at VISN regions to compare survey response rates.
+>>>markdown
+- **How many VISN areas are there?**
+>>>malloy
+run: survey -> {
+    aggregate: `Distinct Veteran Integrated Service Networks (VISNs)` is count(grants.VISN_cleaned)
+}
+>>>malloy
+// sourcing this data from the grants table with maps to improve query performance by separating the URL call from the rest of the data.
+source: grants_map is duckdb.table('data/raw/FY22_SSVF_Grant_Awards.csv') extend {
+    dimension:
+        # image {width=700px, height=387px}
+        VISN_map_all is 'https://www.va.gov/directory/images/VHA/VHAmap.gif'
+        # image {width=350px, height=200px}
+        VISN_map is concat('https://www.va.gov/directory/images/vha/region/', trim(substr(substr(`VISN`, 0, strpos(VISN, ':')), -2)), '.gif')
+        --VISN_test is trim(substr(substr(`VISN`, 0, strpos(VISN, ':')), -2))
+        VISN_cleaned is 
+            pick 'VISN 1: VA New England Healthcare System' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 1'
+            pick 'VISN 2: New York/New Jersey VA Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 2'
+            pick 'VISN 4: VA Healthcare' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 4'
+            pick 'VISN 5: VA Capitol Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 5'
+            pick 'VISN 6: VA Mid-Atlantic Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 6'
+            pick 'VISN 7: VA Southeast Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 7'
+            pick 'VISN 8: VA Sunshine Healthcare Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 8'
+            pick 'VISN 9: VA MidSouth Healthcare Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 9'
+            pick 'VISN 10: VA Healthcare System' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 10'
+            pick 'VISN 12: VA Great Lakes Health Care System' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 12'
+            pick 'VISN 15: VA Heartland Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 15'
+            pick 'VISN 16: South Central VA Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 16'
+            pick 'VISN 17: VA Heart of Texas Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 17'
+            pick 'VISN 19: Rocky Mountain Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 19'
+            pick 'VISN 20: Northwest Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 20'
+            pick 'VISN 21: Sierra Pacific Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 21'
+            pick 'VISN 22: Desert Pacific Healthcare Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 22'
+            pick 'VISN 23: VA Midwest Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 23'
+            else null
+}
+>>>markdown
+We have 18 distinct Veteran Integrated Services Networks (VISNs).
+
+Here is a map from [VA.gov](https://www.va.gov/directory/guide/map.asp?dnum=1):
+>>>markdown
+<mark> WARNING!</mark> Low Performance Query (Image Request) 
+>>>malloy
+run: grants_map -> {
+    select: VISN_map_all
+    limit: 1
+}
+>>>markdown
+When we look at the number of survey responses by VISN 
+>>>malloy
+run: survey -> {
+    group_by: grants.VISN_cleaned
+    aggregate: num_responses
+    where: grants.VISN_cleaned != null
+}
+>>>malloy
+run: survey -> {
+    group_by: fiscal_year
+    aggregate: num_responses
+    # bar_chart {size=lg, x.independent}
+    nest: responses_by_VISN is {
+        group_by: grants.VISN_cleaned
+        aggregate: num_responses
+        where: grants.VISN_cleaned != null
+        limit: 18
+        --order_by: 1
+    }
+    order_by: fiscal_year
+}
+>>>malloy
+run: survey -> {
+    group_by: fiscal_year
+    aggregate: num_responses
+    # bar_chart {size=spark, x.independent}
+    nest: responses_by_VISN is {
+        group_by: grants.VISN_cleaned
+        aggregate: num_responses
+        where: grants.VISN_cleaned != null
+        limit: 18
+        --order_by: 1
+    }
+    order_by: fiscal_year
+}
+>>>markdown
+It's interesting to note that VISN 8 (FL, Virgin Islands, and Puerto Rico) have the highest exit surveys in 2018 and then VISN 22 (NM, AZ, S.CA) take the top spot for 2019 and 2020, with VISN 8 and VISN 21 (N.CA, NV, HI, Guam, Philippines, and American Samoa) coming in at #2 and #3. Understanding these exit surveys as a percentage of the total number of grantees receiving assistance would enrich this analysis.
+>>>markdown
+<mark> WARNING!</mark> Low Performance Query (Image Request) 
+>>>malloy
+run: grants_map -> {
+    group_by: VISN_cleaned
+    nest: map is {
+        select: VISN_map
+        limit: 1
+    }
+    where: VISN_cleaned = 'VISN 8: VA Sunshine Healthcare Network' | 'VISN 21: Sierra Pacific Network' | 'VISN 22: Desert Pacific Healthcare Network'
+}
+>>>malloy
+run: survey -> {
+    group_by: fiscal_year
+    aggregate: num_responses
+    # bar_chart {size=sm, x.independent}
+    nest: responses_by_VISN is {
+        group_by: grants.VISN_cleaned
+        aggregate: num_responses
+        where: grants.VISN_cleaned != null
+        limit: 5
+        --order_by: 1
+    }
+    order_by: fiscal_year
+}
+>>>markdown
+This query provides a clearer picture of the top 5 VISNs.
+>>>markdown
+- **What are the top 5 service providers by Q1 of survey results?**
+
+The VA SSVF Data Dictionary for these survey responses identifies Q1 as "How would you rate the quality of the services you have received from this supportive services provider?" where 
+- 1 = Extremely Poor
+- 2 = Below Average
+- 3 = Average
+- 4 = Above Average
+- 5 = Excellent
+
+Across all SSVF providers:
+>>>malloy
+# dashboard
+run: survey -> {
+    group_by: provider_name
+    aggregate: num_responses
+    limit: 5
+    # bar_chart {size=sm}
+    nest: rating is {
+        group_by: Q1
+        aggregate: num_responses
+    }
+    # bar_chart {size=sm}
+    nest: rating_percent is {
+        group_by: Q1
+        aggregate: # percent
+            percent is num_responses / all(num_responses)
+    }
+}
+>>>markdown
+...and top 5 across all SSVF providers by fiscal year:
+>>>malloy
+# dashboard
+run: survey -> {
+    group_by: fiscal_year
+    # dashboard
+    nest: `Top 5 Providers` is {
+        group_by: Provider is provider_name
+        aggregate: `Total Survey Responses` is num_responses
+            `Average Rating` is average
+        limit: 5
+        # bar_chart {size=sm}
+        nest: rating is {
+            group_by: Q1
+            aggregate: num_responses
+        }
+        # bar_chart {size=sm}
+        nest: percent is {
+            group_by: Q1
+            aggregate: # percent
+                percent is num_responses / all(num_responses)
+        }
+    }
+    order_by: fiscal_year
+}
+>>>markdown
+These top 5 providers are an aggregation between the number of responses and the average rating. Recurring SSVF providers include Vietname Veterans of California, Inc. (Sacramento Veterans Resource), Volunteers of America Northern Rockies, and United States Veterans Initiative.
+
+If we look at the top providers by VISN, that would help a potential grantee understand who their best allies in housing assistance through the VA SSVF program will be:
+>>>malloy
+run: survey -> {
+    group_by: grants.VISN_cleaned
+    nest: `Top 3 Providers` is {
+        group_by: provider_name
+        aggregate: num_responses
+        limit: 3
+        # bar_chart {size=sm, y.independent}
+        nest: rating is {
+            group_by: Q1
+            aggregate: num_responses
+        }
+        # bar_chart {size=sm}
+        nest: rating_percent is {
+            group_by: Q1
+            aggregate: # percent
+                percent is num_responses / all(num_responses)
+        }
+    }
+    order_by: 1
+}
+>>>markdown
+...and finally we can look at providers by state:
+>>>malloy
+# dashboard
+run: survey -> {
+    group_by: nofa.state
+    nest: `2020 Top Provider` is {
+        group_by: grant_id, provider_name
+        aggregate: 
+            num_responses
+            avg_rating is avg(Q1)
+        limit: 1
+        # bar_chart {size=sm, y.independent}
+        nest: rating is {
+            group_by: Q1
+            aggregate: num_responses
+            order_by: Q1 desc
+        }
+    }
+    where: nofa.state is not null and fiscal_year = @2020
+    order_by: 1
+}
+>>>markdown
+- **What is the total aid dollars provided by the VA to these SSVF providers?**
+
+We have access to the FY22 Grant Awards from the VA so let's take a look at that.
+>>>malloy
+run: grants -> {
+    aggregate: # currency
+        `Sum of Grant Awards` is sum(`Grant Award Amount`)
+}
+>>>markdown
+Total grants awarded in 2022 is $417.9 million.
+>>>malloy
+run: grants -> {
+aggregate: # currency
+    `Average Grant Award` is avg(`Grant Award Amount`)    
+}
+>>>markdown
+The average grant amount per provider is $1.6 million...
+
+...and the total grant award for each VISN and average award for providers in their area is shown in the queries below.
+>>>malloy
+run: grants -> {
+    group_by: VISN_num, VISN_cleaned
+    aggregate: # currency
+        `Sum of Grant Awards` is award_amount
+        # currency
+        `Average of Grant Awards for VISN` is (award_amount / count(grant_id))
+    order_by: VISN_num
+}
+>>>malloy
+
+run: grants -> {
+    aggregate: `Total Grants Awarded 2022` is award_amount
+    # bar_chart
+    nest: `Sum of Awards by VISN` is {
+        group_by: VISN_cleaned
+        aggregate: # currency
+            `Sum of Grant Awards` is award_amount
+        order_by: VISN_cleaned
+    }
+    # bar_chart
+    nest: `Percent of Total Awards by VISN` is {
+        group_by: VISN_cleaned
+        aggregate: # percent
+            `Percent of Grant Awards` is award_amount / all(award_amount)
+        order_by: VISN_cleaned
+    }
+}
+>>>markdown
+We can see that there is a wide range of grants awarded across VISN areas and the percentages of awards track as part of the total.
+>>>malloy
+run: grants -> {
+    aggregate: `Total Grants Awarded 2022` is award_amount
+    # bar_chart
+    nest: `Average Awards by VISN` is {
+        group_by: VISN_cleaned
+        aggregate: # currency
+            `Average of Grant Awards for VISN` is (award_amount / count(grant_id))
+        order_by: VISN_cleaned
+    }
+}
+>>>markdown
+Our average awards by VISN does not correspond to the total grant awards that we saw above, so it would be helpful to understand how many organizations received grant awards in 2022.
+>>>malloy
+run: grants -> {
+    aggregate: `Organizations Rcving Grant Awards in 2022` is count(grant_id)
+    # bar_chart
+    nest: `Grant Recipients by VISN` is {
+        group_by: VISN_cleaned
+        aggregate: `Recipients` is count(grant_id)
+        order_by: VISN_cleaned
+    }
+}
+>>>markdown
+There is a lot more analysis that can be done across different questions in the SSVF exit survey itself. I look forward to doing more analysis on it soon.
