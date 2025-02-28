@@ -1,13 +1,14 @@
 # VA SSVF Survey Data Analysis
 
 For fiscal year (FY) 2025, Congress approved **$369.3 billion** in funding to the Department of Veteran's Affairs. In order to support VA initiatives, the department opens Notices of Funding Availability (NOFA) offering grants to private organizations. A small portion of that grant funding is provided under the Supportive Services for Veteran Families (SSVF) program. The SSVF provides case management and supportive services to Veteran's in the very low-income socio-economic strata to identify or prevent the loss of suitable, stable housing. In 2022, the VA granted over $417 million in funding to SSVF providers
-<img alt="2022 VA Grants to SSVF Providers." width="80%" src="/Users/ambermocalis/Documents/Documents - Amber’s MacBook Pro/GitHub/Malloy/VA SSVF Survey Data Analysis/images/2022 VA Grants to SSVF Providers.png"><br>
-<em>Figure: Screenshot of 2022 VA Grants to SSVF Providers.</em>
+<p>
+<img alt="2022 VA Grants to SSVF Providers." width="65%" src="https://github.com/ambermocalis/VA_SSVF_Survey_Data_Analysis/blob/main/images/2022%20VA%20Grants%20to%20SSVF%20Providers.png"><br>
+<em>Figure: Screenshot of 2022 VA Grants to SSVF Providers.</em></p>
 
 The SSVF program requires its affiliates to administer a survey to grantees who have received aid within 30 days of their exit from the program. Much of this analysis looks at the breakdown of ratings for providers with varying characteristics, mostly geographic (national, VISN, and state). You can see a sample of that work below.
 
-<img alt="Top 3 DC-area SSVF Providers." width="80%" src="/Users/ambermocalis/Documents/Documents - Amber’s MacBook Pro/GitHub/Malloy/VA SSVF Survey Data Analysis/images/Top 3 DC-area Providers.png"><br>
-<em>Figure: Screenshot of Top 3 DC-area SSVF Providers.</em>
+<p><img alt="Top 3 DC-area SSVF Providers." width="75%" src="https://github.com/ambermocalis/VA_SSVF_Survey_Data_Analysis/blob/main/images/Top%203%20DC-area%20Providers.png"><br>
+<em>Figure: Screenshot of Top 3 DC-area SSVF Providers.</em></p>
 
 ## FOIA Records
 
