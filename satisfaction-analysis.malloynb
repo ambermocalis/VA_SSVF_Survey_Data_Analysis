@@ -110,6 +110,76 @@ run: survey -> {
     }
     order_by: fiscal_year
 }
+>>>malloy
+run: survey -> {
+    group_by: fiscal_year
+    aggregate: 
+        SSVF_providers is count(grant_id) //shows count of SSVF providers
+    nest: `Busiest Providers`// compare to query above where the 'Busiest Providers' query was 
+                            // completely written out instead of available to call as a view
+    nest: `Survey Response Distribution` is {
+        group_by: provider_name
+        aggregate: num_responses
+        # bar_chart {size=spark }
+        nest: `Survey Ratings Distribution`
+        limit: 5
+    }
+
+    order_by: fiscal_year
+}
+>>>malloy
+# dashboard
+run: survey -> {
+    group_by: fiscal_year
+    aggregate: 
+        `Total SSVF Providers w FY Survey Data` is count(grant_id) //shows count of SSVF providers
+    nest: `Busiest Providers`// compare to query above where the 'Busiest Providers' query was 
+                            // completely written out instead of available to call as a view
+    nest: `Survey Response Distribution for Top Providers` is {
+        group_by: provider_name
+        aggregate: num_responses
+        # bar_chart {size=spark}
+        nest: `Survey Ratings Distribution`
+        limit: 5
+    }
+
+    order_by: fiscal_year
+}
+>>>malloy
+run: survey -> {
+    group_by: fiscal_year
+    aggregate: 
+        `Total SSVF Providers` is count(grant_id) //shows count of SSVF providers
+        `Average Rating` is average
+    # bar_chart {size=sm, x.independet, y.independent}     
+    nest: `Survey Response Distribution for Top Providers` is {
+        group_by: provider_name
+        aggregate: num_responses
+        # tooltip
+        aggregate: average, `Individuals in Household`, `VA Enrolled`, `VA Enrollment Conversions`
+        limit: 5
+    }
+
+    order_by: fiscal_year
+}
+>>>malloy
+# dashboard
+run: survey -> {
+    group_by: fiscal_year
+    aggregate: 
+        `Total SSVF Providers` is count(grant_id) //shows count of SSVF providers
+        `Average Rating of Providers` is average
+    # bar_chart {size=sm, x.independet, y.independent}     
+    nest: `Survey Response Distribution for Top Providers` is {
+        group_by: provider_name
+        aggregate: num_responses
+        # tooltip
+        aggregate: average, `Individuals in Household`, `VA Enrolled`, `VA Enrollment Conversions`
+        limit: 5
+    }
+
+    order_by: fiscal_year
+}
 >>>markdown
 To aid in analyzing each year's data, we can break these charts out by fiscal year and look at them in isolation.
 >>>malloy
@@ -232,7 +302,7 @@ run: survey -> {
 }
 >>>malloy
 // sourcing this data from the grants table with maps to improve query performance by separating the URL call from the rest of the data.
-source: grants_map is duckdb.table('data/raw/FY22_SSVF_Grant_Awards.csv') extend {
+source: grants_map is duckdb.table('./FY22_SSVF_Grant_Awards.csv') extend {
     dimension:
         # image {width=700px, height=387px}
         VISN_map_all is 'https://www.va.gov/directory/images/VHA/VHAmap.gif'
@@ -363,6 +433,25 @@ run: survey -> {
         group_by: Q1
         aggregate: # percent
             percent is num_responses / all(num_responses)
+    }
+}
+>>>malloy
+# dashboard
+run: survey -> {
+    group_by: provider_name
+    aggregate: num_responses
+    limit: 5
+    # bar_chart {size=sm}
+    nest: rating is {
+        group_by: Q1
+        aggregate: num_responses
+        # tooltip
+        nest: rating_percent is {
+            group_by: Q1
+            aggregate: total_responses is all(num_responses)
+                # percent
+                percent is num_responses / all(num_responses)
+        }
     }
 }
 >>>markdown

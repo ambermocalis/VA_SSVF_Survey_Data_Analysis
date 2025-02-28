@@ -1,5 +1,5 @@
 // Load the CSV file into a DuckDB table
-source: nofa is duckdb.table('data/converted/2022_Supp_NOFA_Awards.csv') extend {
+source: nofa is duckdb.table('./2022_Supp_NOFA_Awards.csv') extend {
     primary_key: grant_id
 
     rename: state is `Geographical Area Served`
@@ -28,7 +28,7 @@ source: nofa is duckdb.table('data/converted/2022_Supp_NOFA_Awards.csv') extend 
             else null
 }
 
-source: grants is duckdb.table('data/converted/FY22_SSVF_Grant_Awards.csv') extend {
+source: grants is duckdb.table('./FY22_SSVF_Grant_Awards.csv') extend {
     primary_key: grant_id
 
     rename: grant_id is `Grant Award No.`
@@ -65,7 +65,7 @@ source: grants is duckdb.table('data/converted/FY22_SSVF_Grant_Awards.csv') exte
     
 }
 
-source: survey is duckdb.table('data/converted/FINAL Data - FY 2018-2020_Excluding PII.csv') extend {
+source: survey is duckdb.table('./FINAL Data - FY 2018-2020_Excluding PII.csv') extend {
     except: FNAME, PHONE, PIN, REMAIL ResponseID, Q9, Q10, Q11 //removes unneeded, empty or open-text columns from source
 
     primary_key: grant_id
@@ -88,21 +88,59 @@ source: survey is duckdb.table('data/converted/FINAL Data - FY 2018-2020_Excludi
         last_date is max(survey_date)
         percent_total is num_responses / all(num_responses)
         average is avg(Q1)
+        `Individuals in Household` is sum(supported_peoples)
+        `VA Enrolled` is sum(VA_enrolled)
+        `VA Enrollment Conversions` is sum(VA_new_enrollment)
     
-    view: org_data1 is {
+    view: `Provider Info` is {
         select: grant_id, fiscal_year, survey_date, provider_name
     }
-    view: survey_data1 is {
+    view: `Responses by Year` is {
         group_by: fiscal_year
         aggregate: num_responses
     }
+    view: `Responses by Provider` is {
+        group_by: provider_name
+        aggregate: num_responses
+    }
     
+    view: `Busiest Providers` is {
+        group_by: provider_name
+        aggregate: num_responses
+        limit: 5
+    }
+
+    view: `Survey Rating` is {
+        group_by: provider_name
+        aggregate: average
+    }
+
+    view: `Top Providers` is {
+            group_by: provider_name
+            aggregate: average
+            limit: 5
+            having: num_responses > 30
+        }
+    
+    view: `Survey Ratings Distribution` is {
+        group_by: Q1
+        aggregate: num_responses
+        order_by: Q1 desc
+    }
+
+    view: `Top Providers by Year` is {
+            group_by: fiscal_year
+            aggregate: average
+            limit: 5
+            having: num_responses > 30
+        }
+
     join_one: nofa with grant_id
     join_one: grants with grant_id
 
 }
 
-source: grants2 is duckdb.table('data/converted/FY22_SSVF_Grant_Awards.csv') extend {
+source: grants2 is duckdb.table('./FY22_SSVF_Grant_Awards.csv') extend {
     primary_key: grant_id
 
     rename: grant_id is `Grant Award No.`
