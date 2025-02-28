@@ -1,5 +1,7 @@
 # VA SSVF Survey Data Analysis
 
+[![License](https://img.shields.io/badge/License-CC0-lightgray.svg?style=flat-square)](https://creativecommons.org/publicdomain/zero/1.0/) ![GitHub last commit](https://img.shields.io/github/last-commit/ambermocalis/VA_SSVF_Survey_Data_Analysis)
+
 For fiscal year (FY) 2025, Congress approved **$369.3 billion** in funding to the Department of Veteran's Affairs. In order to support VA initiatives, the department opens Notices of Funding Availability (NOFA) offering grants to private organizations. A small portion of that grant funding is provided under the Supportive Services for Veteran Families (SSVF) program. The SSVF provides case management and supportive services to Veteran's in the very low-income socio-economic strata to identify or prevent the loss of suitable, stable housing. In 2022, the VA granted over $417 million in funding to SSVF providers
 <p>
 <img alt="2022 VA Grants to SSVF Providers." width="65%" src="https://github.com/ambermocalis/VA_SSVF_Survey_Data_Analysis/blob/main/images/2022%20VA%20Grants%20to%20SSVF%20Providers.png"><br>
