@@ -2,15 +2,37 @@
 
 [![License](https://img.shields.io/badge/License-CC0-lightgray.svg?style=flat-square)](https://creativecommons.org/publicdomain/zero/1.0/) ![GitHub last commit](https://img.shields.io/github/last-commit/ambermocalis/VA_SSVF_Survey_Data_Analysis)
 
+## Background and Motivation
+
 For fiscal year (FY) 2025, Congress approved **$369.3 billion** in funding to the Department of Veteran's Affairs. In order to support VA initiatives, the department opens Notices of Funding Availability (NOFA) offering grants to private organizations. A small portion of that grant funding is provided under the Supportive Services for Veteran Families (SSVF) program. The SSVF provides case management and supportive services to Veteran's in the very low-income socio-economic strata to identify or prevent the loss of suitable, stable housing. In 2022, the VA granted over $417 million in funding to SSVF providers
-<p>
+<p align="center">
 <img alt="2022 VA Grants to SSVF Providers." width="65%" src="https://github.com/ambermocalis/VA_SSVF_Survey_Data_Analysis/blob/main/images/2022%20VA%20Grants%20to%20SSVF%20Providers.png"><br>
 <em>Figure: Screenshot of 2022 VA Grants to SSVF Providers.</em></p>
 
-The SSVF program requires its affiliates to administer a survey to grantees who have received aid within 30 days of their exit from the program. Much of this analysis looks at the breakdown of ratings for providers with varying characteristics, mostly geographic (national, VISN, and state). You can see a sample of that work below.
+The SSVF program requires its affiliates to administer a survey to grantees who have received aid within 30 days of their exit from the program. Much of this analysis looks at the breakdown of ratings for providers with varying characteristics (e.g. fiscal year or geographic trait-VISN or state). You can see two samples of that work below.
 
-<p><img alt="Top 3 DC-area SSVF Providers." width="75%" src="https://github.com/ambermocalis/VA_SSVF_Survey_Data_Analysis/blob/main/images/Top%203%20DC-area%20Providers.png"><br>
+<p align="center">
+<img alt="Top SSVF Providers-FY2018." width="75%" src="https://github.com/ambermocalis/VA_SSVF_Survey_Data_Analysis/blob/main/images/Top%20Providers%20FY2018.png"><br>
+<em>Figure: Screenshot of Top SSVF Providers from FY 2018.</em></p>
+
+<p> </p>
+
+<p align="center">
+<img alt="Top 3 DC-area SSVF Providers." width="75%" src="https://github.com/ambermocalis/VA_SSVF_Survey_Data_Analysis/blob/main/images/Top%203%20DC-area%20Providers.png"><br>
 <em>Figure: Screenshot of Top 3 DC-area SSVF Providers.</em></p>
+
+<p> </p>
+
+<p align="center">
+<img alt="Survey Responses by State." width="75%" src="https://github.com/ambermocalis/VA_SSVF_Survey_Data_Analysis/blob/main/images/Survey%20Response%20by%20State.png"><br>
+<em>Figure: Survey Response by State.</em></p>
+
+This analysis is descriptive, and hopefully can give the reader an opportunity to see which providers are providing the best service in their state or region. You can use this information to refer a vet needing assistance or consider supporting these organizations with your own time or financial resources. As a military spouse I know intimately that our national freedoms are paid for by some for all. So consider supporting our nation's veterans in this or other practical ways!
+
+<p>
+<img alt="Goodwill-SSVF." width="100%" src="https://github.com/ambermocalis/VA_SSVF_Survey_Data_Analysis/blob/main/images/SSVF-Goodwill.jpg"><br>
+<em>Figure: Goodwill-SSVF logo.</em><img alt="homeless vet sign." width="50%" src="https://github.com/ambermocalis/VA_SSVF_Survey_Data_Analysis/blob/main/images/homeless-vet-sign.jpg"><br>
+<em>Figure: Cardboard sign of homeless vet in Spokane.</em></p>
 
 ## FOIA Records
 
