@@ -3,13 +3,87 @@
 ### Analysis of SSVF Survey Data and overall satisfaction of "customers" of provider/grantor services
 The VA SSVF program awards grants to “selected private non-profit organizations and consumer cooperatives that will assist very low-income Veteran families residing in or transitioning to permanent housing.” Federal regulations (38 CFR 62.36(c)(2)) require grantees to provide a satisfaction survey to participants in the program within 30 days of the participants exit from the program.
 
-##### This file can be found on <mark>[github.com/ambermocalis/VA_SSVF_Survey_Data_Analysis](https://github.com/ambermocalis/VA_SSVF_Survey_Data_Analysis)</mark>
-
 This analysis includes an analysis of rate of service access for other Veteran assistance programs, (e.g. healthcare, financial services care, etc.)
 
 Geographic Area analysis required the joining of [SSVF Grantor Supplement](https://www.va.gov/HOMELESS/ssvf/docs/FY22_SSVF_Supplemental_NOFA_Awards_Announcement.pdf) and areas adjusted to match the [Veterans Integrated Services Networks (VISNs)](https://www.va.gov/HEALTH/visns.asp)
 >>>malloy
 import 'satisfaction-analysis.malloy'
+>>>malloy
+// sourcing this data from the grants table with maps to improve query performance by separating the URL call from the rest of the data that is sourced from the sourcing malloy file.
+source: grants_map is duckdb.table('./FY22_SSVF_Grant_Awards.csv') extend {
+    dimension:
+        # image {width=700px, height=387px}
+        VISN_map_all is 'https://www.va.gov/directory/images/VHA/VHAmap.gif'
+        # image {width=350px, height=200px}
+        VISN_map is concat('https://www.va.gov/directory/images/vha/region/', trim(substr(substr(`VISN`, 0, strpos(VISN, ':')), -2)), '.gif')
+        --VISN_test is trim(substr(substr(`VISN`, 0, strpos(VISN, ':')), -2))
+        VISN_cleaned is 
+            pick 'VISN 1: VA New England Healthcare System' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 1'
+            pick 'VISN 2: New York/New Jersey VA Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 2'
+            pick 'VISN 4: VA Healthcare' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 4'
+            pick 'VISN 5: VA Capitol Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 5'
+            pick 'VISN 6: VA Mid-Atlantic Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 6'
+            pick 'VISN 7: VA Southeast Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 7'
+            pick 'VISN 8: VA Sunshine Healthcare Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 8'
+            pick 'VISN 9: VA MidSouth Healthcare Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 9'
+            pick 'VISN 10: VA Healthcare System' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 10'
+            pick 'VISN 12: VA Great Lakes Health Care System' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 12'
+            pick 'VISN 15: VA Heartland Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 15'
+            pick 'VISN 16: South Central VA Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 16'
+            pick 'VISN 17: VA Heart of Texas Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 17'
+            pick 'VISN 19: Rocky Mountain Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 19'
+            pick 'VISN 20: Northwest Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 20'
+            pick 'VISN 21: Sierra Pacific Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 21'
+            pick 'VISN 22: Desert Pacific Healthcare Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 22'
+            pick 'VISN 23: VA Midwest Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 23'
+            else null
+}
+>>>markdown
+#### TL,DR!
+
+You're missing out on some neat analysis and examples of how Malloy, a "new" open source semantic data language, can act as an alternative to SQL or pandas. I hope you'll find time to come back later and dig deeper into the analysis.
+
+Ultimately, analyzing provider ratings of SSVF providers could ultimately help potential grantees (veterans) locate the best allies in housing assistance in their state or VISN will be. Below we have the top 3 providers in terms of number served AND their average rating from exit-surveys for VISN and state. Recurring SSVF providers with top ratings across the nation include Vietname Veterans of California, Inc. (Sacramento Veterans Resource), Volunteers of America Northern Rockies, and United States Veterans Initiative. So if you reside in one of these areas and you know a vet needing help with housing, these are the top-tier providers in the country.
+
+Check out the VISN area map, then scroll to the corresponding VISN provider list below. And don't forget to come back later to see more of the analysis that builds up to the Provider List!
+>>>markdown
+We have 18 distinct Veteran Integrated Services Networks (VISNs).
+
+Here is a map from [VA.gov](https://www.va.gov/directory/guide/map.asp?dnum=1):
+<p align="center">WARNING! Low Performance Query (Image Request) </p>
+>>>malloy
+run: grants_map -> {
+    select: VISN_map_all
+    limit: 1
+}
+>>>malloy
+# dashboard
+run: survey -> {
+    group_by: grants.VISN_cleaned
+    nest: `Top 3 Providers` is {
+        group_by: provider_name
+        aggregate: num_responses
+        limit: 3
+        # bar_chart {size=sm, y.independent}
+        nest: rating is {
+            group_by: Q1
+            aggregate: num_responses
+        }
+        # bar_chart {size=sm}
+        nest: rating_percent is {
+            group_by: Q1
+            aggregate: # percent
+                percent is num_responses / all(num_responses)
+        }
+    }
+    order_by: 1
+}
+>>>markdown
+So, let's dig into the analysis!
+
+##### Table Samples
+
+Provider exit-surveys include a series of questions regarding whether the grantors expectations for maintaining or obtaining stable housing was met and if they received or obtained VA services based on eligibility. Yes/No questions are denoted with Boolean 0/1 notations. Service ratings are based on an ordinal 1 (Poor) to 5 (Excellent) ranking.
 >>>malloy
 run: survey -> {
     select: *
@@ -95,14 +169,14 @@ run: survey -> {
     group_by: fiscal_year
     aggregate: 
         SSVF_providers is count(grant_id) //shows count of SSVF providers
-    nest: sample_providers is {
+    nest: top_10_providers is {
         group_by: provider_name
         aggregate: num_responses
         limit: 10
     }
 
     # bar_chart {x.independent, y.independent }
-    nest: sample_providers_chart is {
+    nest: top_10_providers_chart is {
         group_by: provider_name
         aggregate: num_responses
         order_by: num_responses desc
@@ -115,30 +189,11 @@ run: survey -> {
     group_by: fiscal_year
     aggregate: 
         SSVF_providers is count(grant_id) //shows count of SSVF providers
-    nest: `Busiest Providers`// compare to query above where the 'Busiest Providers' query was 
-                            // completely written out instead of available to call as a view
+ 
     nest: `Survey Response Distribution` is {
         group_by: provider_name
         aggregate: num_responses
         # bar_chart {size=spark }
-        nest: `Survey Ratings Distribution`
-        limit: 5
-    }
-
-    order_by: fiscal_year
-}
->>>malloy
-# dashboard
-run: survey -> {
-    group_by: fiscal_year
-    aggregate: 
-        `Total SSVF Providers w FY Survey Data` is count(grant_id) //shows count of SSVF providers
-    nest: `Busiest Providers`// compare to query above where the 'Busiest Providers' query was 
-                            // completely written out instead of available to call as a view
-    nest: `Survey Response Distribution for Top Providers` is {
-        group_by: provider_name
-        aggregate: num_responses
-        # bar_chart {size=spark}
         nest: `Survey Ratings Distribution`
         limit: 5
     }
@@ -184,27 +239,33 @@ run: survey -> {
 To aid in analyzing each year's data, we can break these charts out by fiscal year and look at them in isolation.
 >>>malloy
 // FY18 survey counts
+# dashboard
 run: survey -> {
     group_by: fiscal_year
     aggregate: 
         SSVF_providers is count(grant_id) //shows count of SSVF providers
+    # bar_chart 
     nest: sample_providers is {
         group_by: provider_name
         aggregate: num_responses
-        limit: 10
+        # tooltip
+        nest: ` ` is {
+            group_by: ` ` is provider_name
+            aggregate: `Average Rating` is average
+        }        limit: 10
     }
+    # bar_chart 
     nest: sample_providers_lowest is {
         group_by: provider_name
         aggregate: num_responses
+        # tooltip
+        nest: ` ` is {
+            group_by: ` ` is provider_name
+            aggregate: `Average Rating` is average
+        }
         order_by: num_responses asc
         limit: 10
     }    
-    # bar_chart 
-    nest: sample_providers_chart is {
-        group_by: provider_name
-        aggregate: num_responses
-        limit: 10
-    }
     where: fiscal_year = @2018
 }
 >>>malloy
@@ -282,16 +343,6 @@ run: survey -> {
         `Survey Responses w/o State Designation` is num_responses {where: nofa.state = null}
         `Survey Responses w State Designation` is num_responses {where: nofa.state != null}
 }
->>>malloy
-# line_chart {size=lg}
-run: survey -> {
-    group_by: fiscal_year
-    aggregate: 
-        # y
-        `Survey Responses-no state` is num_responses {where: nofa.state = null}
-        # y
-        `Survey Responses` is num_responses {where: nofa.state != null}
-}
 >>>markdown
 Sure enough, we have a number of surveys provided to SSVF providers that we do not have state information on due to data limitations. We can look at VISN regions to compare survey response rates.
 >>>markdown
@@ -300,49 +351,10 @@ Sure enough, we have a number of surveys provided to SSVF providers that we do n
 run: survey -> {
     aggregate: `Distinct Veteran Integrated Service Networks (VISNs)` is count(grants.VISN_cleaned)
 }
->>>malloy
-// sourcing this data from the grants table with maps to improve query performance by separating the URL call from the rest of the data.
-source: grants_map is duckdb.table('./FY22_SSVF_Grant_Awards.csv') extend {
-    dimension:
-        # image {width=700px, height=387px}
-        VISN_map_all is 'https://www.va.gov/directory/images/VHA/VHAmap.gif'
-        # image {width=350px, height=200px}
-        VISN_map is concat('https://www.va.gov/directory/images/vha/region/', trim(substr(substr(`VISN`, 0, strpos(VISN, ':')), -2)), '.gif')
-        --VISN_test is trim(substr(substr(`VISN`, 0, strpos(VISN, ':')), -2))
-        VISN_cleaned is 
-            pick 'VISN 1: VA New England Healthcare System' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 1'
-            pick 'VISN 2: New York/New Jersey VA Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 2'
-            pick 'VISN 4: VA Healthcare' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 4'
-            pick 'VISN 5: VA Capitol Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 5'
-            pick 'VISN 6: VA Mid-Atlantic Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 6'
-            pick 'VISN 7: VA Southeast Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 7'
-            pick 'VISN 8: VA Sunshine Healthcare Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 8'
-            pick 'VISN 9: VA MidSouth Healthcare Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 9'
-            pick 'VISN 10: VA Healthcare System' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 10'
-            pick 'VISN 12: VA Great Lakes Health Care System' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 12'
-            pick 'VISN 15: VA Heartland Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 15'
-            pick 'VISN 16: South Central VA Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 16'
-            pick 'VISN 17: VA Heart of Texas Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 17'
-            pick 'VISN 19: Rocky Mountain Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 19'
-            pick 'VISN 20: Northwest Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 20'
-            pick 'VISN 21: Sierra Pacific Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 21'
-            pick 'VISN 22: Desert Pacific Healthcare Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 22'
-            pick 'VISN 23: VA Midwest Health Care Network' when substr(`VISN`, 0, strpos(VISN, ':')) = 'VISN 23'
-            else null
-}
 >>>markdown
-We have 18 distinct Veteran Integrated Services Networks (VISNs).
+Remeber that we have 18 distinct Veteran Integrated Services Networks (VISNs) in the United States and its territories.
 
-Here is a map from [VA.gov](https://www.va.gov/directory/guide/map.asp?dnum=1):
->>>markdown
-<mark> WARNING!</mark> Low Performance Query (Image Request) 
->>>malloy
-run: grants_map -> {
-    select: VISN_map_all
-    limit: 1
-}
->>>markdown
-When we look at the number of survey responses by VISN 
+When we look at the number of survey responses by VISN, we find the following:
 >>>malloy
 run: survey -> {
     group_by: grants.VISN_cleaned
@@ -350,6 +362,7 @@ run: survey -> {
     where: grants.VISN_cleaned != null
 }
 >>>malloy
+# dashboard 
 run: survey -> {
     group_by: fiscal_year
     aggregate: num_responses
@@ -359,7 +372,11 @@ run: survey -> {
         aggregate: num_responses
         where: grants.VISN_cleaned != null
         limit: 18
-        --order_by: 1
+        # tooltip
+        nest: tooltip is {
+            group_by: grants.VISN_cleaned
+            aggregate: num_responses, `Average Rating` is average, `Individuals in Household`
+        }
     }
     order_by: fiscal_year
 }
@@ -380,7 +397,7 @@ run: survey -> {
 >>>markdown
 It's interesting to note that VISN 8 (FL, Virgin Islands, and Puerto Rico) have the highest exit surveys in 2018 and then VISN 22 (NM, AZ, S.CA) take the top spot for 2019 and 2020, with VISN 8 and VISN 21 (N.CA, NV, HI, Guam, Philippines, and American Samoa) coming in at #2 and #3. Understanding these exit surveys as a percentage of the total number of grantees receiving assistance would enrich this analysis.
 >>>markdown
-<mark> WARNING!</mark> Low Performance Query (Image Request) 
+<p align="center"> WARNING! Low performance may occur (Image Request) </p>
 >>>malloy
 run: grants_map -> {
     group_by: VISN_cleaned
@@ -485,6 +502,7 @@ These top 5 providers are an aggregation between the number of responses and the
 
 If we look at the top providers by VISN, that would help a potential grantee understand who their best allies in housing assistance through the VA SSVF program will be:
 >>>malloy
+# dashboard
 run: survey -> {
     group_by: grants.VISN_cleaned
     nest: `Top 3 Providers` is {
